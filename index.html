@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102b32">
+  <title>RoyalStay — Stays worth remembering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="RoyalStay home"><span class="brand-icon">✦</span> Royal<span>Stay</span></a>
+    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    <nav class="nav-links" aria-label="Main navigation"><a href="#discover">Discover</a><a href="#why-us">Why RoyalStay</a><a href="#how-it-works">How it works</a><a class="nav-cta" href="#booking">Book your stay <span>↗</span></a></nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="hero-shade"></div>
+      <div class="hero-content container">
+        <div class="eyebrow light"><span class="sparkle">✦</span> CURATED STAYS. UNFORGETTABLE MOMENTS.</div>
+        <h1>Find your place<br>in the <em>extraordinary.</em></h1>
+        <p>Handpicked hideaways, inspiring destinations, and the little details that make every journey feel special.</p>
+        <a class="primary-btn" href="#discover">Explore destinations <span>↗</span></a>
+        <div class="hero-proof"><span class="avatar-stack"><b>A</b><b>M</b><b>R</b></span><span><strong>2,000+ happy travelers</strong><small>Making memories, one stay at a time</small></span></div>
+      </div>
+      <div class="hero-label">THE ART OF GETTING AWAY <span>✧</span></div>
+    </section>
+
+    <section class="search-wrap container" aria-label="Find a hotel">
+      <form class="search-panel" action="/" method="get">
+        <div class="search-field"><span class="field-icon">⌖</span><div><label for="city">Destination</label><select id="city" name="city"><option value="">Anywhere in India</option>{% for h in all_hotels %}<option value="{{ h.city }}" {% if city == h.city %}selected{% endif %}>{{ h.city }}</option>{% endfor %}</select></div></div>
+        <div class="search-info"><span class="field-icon">♧</span><div><strong>Handpicked hotels</strong><span>Quality you can trust</span></div></div>
+        <button class="search-button" type="submit">Explore stays <span>→</span></button>
+      </form>
+    </section>
+
+    <section class="section container" id="discover">
+      <div class="section-head"><div><span class="eyebrow">THE COLLECTION</span><h2>Stay somewhere <em>special.</em></h2><p>From tranquil coastlines to vibrant city escapes, find your next favorite place.</p></div><a class="text-link" href="/">View all stays ↗</a></div>
+      <div class="hotel-grid">
+        {% for hotel in hotels %}
+        <article class="hotel-card"><div class="hotel-image"><img src="{{ hotel.image }}" alt="{{ hotel.name }} hotel" loading="lazy"><span class="badge">✦ {{ hotel.badge }}</span></div><div class="hotel-body"><div class="hotel-meta"><span>⌖ {{ hotel.city }} · {{ hotel.type }}</span><span class="rating">★ {{ hotel.rating }}</span></div><h3>{{ hotel.name }}</h3><div class="hotel-footer"><div><strong>₹{{ '{:,}'.format(hotel.price) }}</strong><small> / night</small></div><button class="card-button" type="button" data-hotel="{{ hotel.id }}" data-name="{{ hotel.name }}">Reserve stay ↗</button></div></div></article>
+        {% else %}
+        <div class="empty-state"><h3>No stays found</h3><p>Try a different destination.</p><a href="/">See all hotels →</a></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="features" id="why-us"><div class="container features-inner"><div><span class="eyebrow">WHY TRAVEL WITH US</span><h2>Every stay, a little<br><em>more remarkable.</em></h2></div><div class="feature-grid"><div><span class="feature-icon">◇</span><h3>Thoughtfully selected</h3><p>Beautiful stays chosen for comfort, character, and charm.</p></div><div><span class="feature-icon">♧</span><h3>Simple booking</h3><p>Choose your dates and reserve in just a few clicks.</p></div><div><span class="feature-icon">♡</span><h3>Made for memories</h3><p>Find your perfect setting for moments that matter.</p></div></div></div></section>
+
+    <section class="booking-section" id="booking"><div class="container booking-layout"><div class="booking-copy"><span class="eyebrow light">YOUR NEXT CHAPTER AWAITS</span><h2>Let's make your<br>next escape <em>happen.</em></h2><p>Dreaming of somewhere new? Your perfect getaway is just a few details away.</p><div class="booking-note">✧ &nbsp; Instant booking confirmation</div></div><div class="booking-card"><span class="eyebrow">RESERVE YOUR ROOM</span><h3>Your getaway starts here.</h3>{% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="alert {{ category }}" role="alert">{{ message }}</div>{% endfor %}{% endwith %}<form action="{{ url_for('book') }}" method="post" id="booking-form"><label for="hotel_id">Choose your hotel</label><select id="hotel_id" name="hotel_id" required><option value="">Select a hotel</option>{% for hotel in all_hotels %}<option value="{{ hotel.id }}" data-price="{{ hotel.price }}">{{ hotel.name }} — {{ hotel.city }}</option>{% endfor %}</select><div class="two-col"><div><label for="guest_name">Full name</label><input id="guest_name" name="guest_name" placeholder="Your full name" minlength="2" maxlength="100" required></div><div><label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@example.com" required></div></div><div class="two-col"><div><label for="checkin">Check-in</label><input id="checkin" name="checkin" type="date" min="{{ today }}" required></div><div><label for="checkout">Check-out</label><input id="checkout" name="checkout" type="date" min="{{ today }}" required></div></div><label for="guests">Guests</label><select id="guests" name="guests" required><option value="1">1 guest</option><option value="2" selected>2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select><div class="estimate" id="estimate">Select a hotel and dates to see the total.</div><button class="submit-btn" type="submit">Confirm reservation <span>→</span></button><p class="form-hint">Demo booking only · No payment required</p></form></div></div></section>
+
+    <section class="steps container" id="how-it-works"><span class="eyebrow">EFFORTLESS FROM START TO FINISH</span><h2>Three steps to <em>somewhere new.</em></h2><div class="steps-grid"><div><span>01</span><h3>Find your stay</h3><p>Browse our collection of beautiful hotels.</p></div><div><span>02</span><h3>Pick your dates</h3><p>Tell us when you want to get away.</p></div><div><span>03</span><h3>Make it yours</h3><p>Reserve and receive your confirmation.</p></div></div></section>
+  </main>
+  <footer><div class="container footer-inner"><a class="brand" href="/"><span class="brand-icon">✦</span> Royal<span>Stay</span></a><p>Go somewhere wonderful. Stay a little longer.</p><small>© 2026 RoyalStay · Demo hotel booking project</small></div></footer>
+</body>
+</html>
